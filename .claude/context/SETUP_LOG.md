@@ -247,3 +247,23 @@ All 3 features touch completely separate files:
 - [ ] **User action needed**: Install GitHub App `proliferate-iz` on `ifelse-codes/spring-open-telemetry`
 - [ ] **User action needed**: Launch 3 sessions simultaneously from UI
 - [ ] Results/timing not yet captured (sessions not launched this session)
+
+### Session 07 Extended — Fixes + Git Setup
+
+**API Key fix:**
+- Old ANTHROPIC_API_KEY was expired — updated in all 3 env files (`.env`, `.env.local`, `apps/web/.env.local`)
+- Root cause of `x-api-key header is required` error in OpenCode confirmed
+
+**Dev server fix:**
+- Stale `next dev` process (PID 11944) was holding port 3000 + `.next/dev/lock`
+- Killed via PowerShell `Stop-Process`, deleted lock file, restarted cleanly
+
+**Git setup + PRs:**
+- Initialized git in `c:/playground/try-proliferate/`
+- Redacted E2B API key from prompt files before committing
+- Fixed `build-daemon.mjs` hardcoded pnpm path → uses `import * as esbuild from "esbuild"`
+- Committed code changes (`opencode-ready.ts`, `e2b.Dockerfile`, `build-daemon.mjs`) on branch `fix/opencode-readiness-and-sandbox-prewarm`
+- Installed `gh` CLI via winget, authenticated as `ifelse-codes`
+- Forked `proliferate-ai/proliferate` → `ifelse-codes/proliferate`
+- Pushed branch + opened PR: https://github.com/proliferate-ai/proliferate/pull/304
+- Pushed knowledge base to private repo: https://github.com/ifelse-codes/infinite-zero
