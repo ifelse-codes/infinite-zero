@@ -1,11 +1,4 @@
-# Session 08 — [PLACEHOLDER: replace with chosen option]
-
-<!-- User to replace this file after picking A/B/C from Session 07 chat -->
-<!-- Options were:
-  A — Launch + Monitor (run the 3 parallel sessions, capture results)
-  B — Revenue: Stripe + Billing Integration
-  C — Self-Serve Onboarding Wizard
--->
+# Session 08 — Run the Multi-Agent Parallel Test
 
 ## Context (from Sessions 01-07)
 
@@ -18,31 +11,44 @@
 - ✅ Web UI at http://localhost:3000
 - ✅ First end-to-end agent session worked (Session 05)
 - ✅ Architecture fully understood (session creator, wake cycle, admission guard)
-- ✅ E2B template rebuilt (Session 06 — pre-warm confirmed)
+- ✅ E2B template rebuilt with pre-warm (Session 06)
 - ✅ Target repo analyzed (`ifelse-codes/spring-open-telemetry`) — Session 07
 - ✅ 3 session prompts written and ready (logs, metrics, traces) — Session 07
-- ⏳ GitHub App install on target repo — USER ACTION NEEDED
-- ⏳ 3 parallel sessions not yet launched
+- ✅ ANTHROPIC_API_KEY rotated (new key in all 3 env files)
+- ✅ Knowledge base pushed to `ifelse-codes/infinite-zero`
+- ✅ PR #304 opened to proliferate upstream
+- ⏳ GitHub App install on `spring-open-telemetry` — NOT YET DONE
+- ⏳ 3 parallel sessions — NOT YET LAUNCHED
 
 ---
 
-## OPTION A: Launch + Monitor (Multi-Agent Parallel Test)
+## Objectives
 
-### Pre-condition
-GitHub App `proliferate-iz` must be installed on `ifelse-codes/spring-open-telemetry` before starting.
-Verify: http://localhost:3000 → Settings → Repositories → confirm repo shows up.
+### Step 1: Start Dev Server
+Ensure everything is running before launching sessions:
+```bash
+cd c:/playground/try-proliferate/repo
+export PATH="/c/Program Files/nodejs:$PATH"
+docker compose up -d postgres redis
+pnpm dev:raw
+```
+Confirm http://localhost:3000 loads and http://localhost:8787 is listening.
 
-### Step 1: Install GitHub App (User Action — if not done yet)
-1. Go to http://localhost:3000 → Settings → Repositories
-2. Click "Install GitHub App" → select `ifelse-codes/spring-open-telemetry`
-3. Confirm repo appears in UI before proceeding
+### Step 2: Install GitHub App (User Action Required)
+Walk the user through:
+1. Go to **http://localhost:3000 → Settings → Repositories**
+2. Click **"Install GitHub App"** → select `ifelse-codes/spring-open-telemetry`
+3. Confirm the repo appears in Proliferate UI before proceeding
 
-### Step 2: Launch 3 Sessions Simultaneously (User Action)
+Do NOT proceed to Step 3 until confirmed.
 
-Open 3 browser tabs: http://localhost:3000
-Navigate to `ifelse-codes/spring-open-telemetry` in each.
+### Step 3: Launch 3 Sessions Simultaneously (User Action Required)
 
-**Tab 1 — Logs agent** (start first):
+Open **3 browser tabs** at http://localhost:3000, navigate to `spring-open-telemetry` in each.
+
+Note the exact start time for each session.
+
+**Tab 1 — Logs agent** (start first, note the time):
 ```
 Create a working OpenTelemetry logs demo in this Spring Boot project.
 
@@ -108,82 +114,59 @@ The build.gradle already has opentelemetry-api:1.31.0. No changes to build.gradl
 Open a PR titled "feat: add OpenTelemetry custom traces demo endpoint" when done.
 ```
 
-Note start time for each session. All 3 should start within 30 seconds of each other.
+### Step 4: Monitor All 3 in Parallel
 
-### Step 3: Monitor All 3
-
-Watch the dev log:
+Watch the dev log while sessions are running:
 ```bash
-tail -f /tmp/proliferate-dev.log | grep -E "session|sandbox|wake|ready|error|agent" --line-buffered
+cat /tmp/proliferate-dev.log | tr -cd '[:print:]\n' | grep -E "session|sandbox|wake|ready|error|agent"
 ```
 
-Document:
-- Start time for each session
-- Sandbox ID for each session
-- When each sandbox became ready
-- Whether all 3 ran in parallel or sequentially (key proof of concept)
+Document for each session:
+- Start time
+- Sandbox ID (from log)
+- When sandbox became ready
+- Whether all 3 ran concurrently (key proof — overlapping timestamps)
 
-### Step 4: Review Agent Output
+### Step 5: Review Each Agent's Output
 
-For each session after it completes:
-- What files did it create or modify?
-- Does the code look correct (Java syntax, correct OTel API usage)?
-- Did it open a PR?
-- Does the PR contain only the expected new files (no accidental cross-feature changes)?
+Once all 3 sessions complete, for each one:
+- What files were created?
+- Does the Java code look correct (proper OTel API usage)?
+- Did the agent open a PR?
+- Does the PR contain ONLY the expected new files (no cross-contamination)?
 
-### Step 5: Assess Merge Strategy
+Check the PRs at: https://github.com/ifelse-codes/spring-open-telemetry/pulls
 
-- Can all 3 PRs merge cleanly into main (expected: yes, no overlapping files)?
-- If conflicts: identify which files conflict and why
+### Step 6: Assess Merge Strategy
+
+- Can all 3 PRs merge cleanly into `main`? (Expected: yes — no overlapping files)
+- If conflicts exist: identify exactly which files conflict and why
 - Recommend merge order if needed
 
-### Success Criteria
-- [ ] GitHub App installed on target repo
+---
+
+## Success Criteria
+- [ ] GitHub App installed on `spring-open-telemetry`
 - [ ] 3 sessions launched within 30s of each other
-- [ ] All 3 ran in parallel (confirmed from logs)
-- [ ] All 3 produced PRs with correct code
-- [ ] Merge strategy: all 3 can merge cleanly
+- [ ] All 3 ran in parallel (confirmed from logs — overlapping sandbox activity)
+- [ ] All 3 produced PRs with correct new files
+- [ ] Merge strategy: all 3 merge cleanly (no conflicts)
 
 ---
 
-## OPTION B: Revenue — Stripe + Billing Integration
-
-### Context
-The Autumn billing library is already in the codebase but not wired to Stripe.
-Read `repo/docs/specs/billing-metering.md` before making any changes.
-
-### Objectives
-1. Read `billing-metering.md` spec in full
-2. Decide: Autumn library vs Stripe Direct (document ADR-005)
-3. Implement Stripe Checkout session creation
-4. Implement webhook handler for subscription lifecycle events (created, updated, cancelled)
-5. Wire plan limits to the gateway's admission guard
-6. Test with Stripe test mode (test API keys)
-
-### Files Likely Involved
-- `apps/web/` — Checkout redirect button
-- `apps/gateway/src/api/` — Webhook receiver
-- `packages/` — Billing service/client
-- `repo/docs/specs/billing-metering.md` — Current billing spec
+## Deliverables
+1. **Timing log** — start times, sandbox IDs, ready times for all 3
+2. **PR links** — all 3 PRs with file review notes
+3. **Merge assessment** — clean or conflict analysis
+4. **Updated KNOWN_ISSUES.md** — any new issues
+5. **Updated SETUP_LOG.md** — append session 08 results
+6. **Session summary**: `prompts/08 - CLAUDE_CODE_PROMPT_summary.md`
+7. **Next prompt**: `prompts/09 - CLAUDE_CODE_PROMPT.md` (options in chat)
 
 ---
 
-## OPTION C: Self-Serve Onboarding Wizard
-
-### Context
-New users land at http://localhost:3000 but have no guidance on how to install the GitHub App
-or run their first session. This causes friction and drop-off.
-
-### Objectives
-1. Read existing auth flow + settings pages to understand current UI structure
-2. Design a 3-step onboarding wizard:
-   - Step 1: Install GitHub App (link + confirmation check)
-   - Step 2: Pick a first repo
-   - Step 3: Run first session (with a suggested prompt)
-3. Implement wizard as a new page/modal in `apps/web/`
-4. Wire completion state (skip wizard if already has sessions)
-5. Test end-to-end from fresh account
-
----
-
-_Delete this file contents and replace with the chosen option's objectives when starting Session 08._
+## Notes for Claude
+- Confirm dev server is running FIRST before asking user to install GitHub App
+- If sessions take >10 min each, that's still valid data — note cold-start timing
+- The 3 PRs should touch completely different files — flag immediately if an agent modifies existing files
+- After reviewing PRs, push updated knowledge base to `infinite-zero` with session 08 results
