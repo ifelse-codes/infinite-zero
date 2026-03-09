@@ -1,0 +1,23 @@
+# ── Cloned source repo (has its own git + sensitive .env files) ──
+repo/
+
+# ── Environment / secrets ──
+.env
+.env.*
+*.env
+*.pem
+*.key
+
+# ── Logs ──
+*.log
+/tmp/
+
+# ── OS / editor ──
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ── Node / pnpm ──
+node_modules/
+.pnpm-store/
